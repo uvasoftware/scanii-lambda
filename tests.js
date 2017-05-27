@@ -1,9 +1,9 @@
-var handler = require('./lib/index.js').handler;
-var generateSignature = require('./lib/index.js').generateSignature;
-var assert = require('assert');
-var context = require('aws-lambda-mock-context');
-var it = require("mocha/lib/mocha.js").it;
-var describe = require("mocha/lib/mocha.js").describe;
+const handler = require('./lib/index.js').handler;
+const generateSignature = require('./lib/index.js').generateSignature;
+const assert = require('assert');
+const context = require('aws-lambda-mock-context');
+const it = require("mocha/lib/mocha.js").it;
+const describe = require("mocha/lib/mocha.js").describe;
 
 process.env.MOCK_EXTERNAL_SERVICES = true;
 
