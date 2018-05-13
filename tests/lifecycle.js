@@ -1,22 +1,38 @@
-var handler = require('./lib/index.js').handler;
-var generateSignature = require('./lib/index.js').generateSignature;
-var assert = require('assert');
-var context = require('aws-lambda-mock-context');
-var it = require("mocha/lib/mocha.js").it;
-var describe = require("mocha/lib/mocha.js").describe;
+const handler = require('../lib/index.js').handler;
+const generateSignature = require('../lib/index.js').generateSignature;
+const assert = require('assert');
+const context = require('aws-lambda-mock-context');
+const it = require("mocha/lib/mocha.js").it;
+const describe = require("mocha/lib/mocha.js").describe;
+const AWS = require('aws-sdk');
+const nock = require('nock');
 
-process.env.MOCK_EXTERNAL_SERVICES = true;
 
 // Start the test
-describe('Lifecycle tests', function () {
-  it('should process a create object event', function (done) {
+describe('Lifecycle tests', () => {
+  beforeEach(() => {
+
+
+    // wrapping some fakes around the AWS sdk:
+    AWS.S3.prototype.getSignedUrl = () => 'https://example.com/1234?q=124';
+
+    // for some reason we need to monkey patch this:
+    AWS.S3.prototype.deleteObject = (options, callback) => {
+      callback();
+    };
+    AWS.SNS.prototype.publish = () =>{
+      return true;
+    };
+
+  });
+
+  nock('https://api.scanii.com')
+    .post('/v2.1/files/fetch')
+    .reply(202, Buffer.from("{\"id\":\"12356789\"}"));
+
+  it('should process a create object event', done => {
+
     handler({
-      _mock: {
-        response: {
-          statusCode: 202
-        },
-        data: Buffer.from("{\"id\":\"12356789\"}")
-      },
       "Records": [
         {
           "eventVersion": "2.0",
@@ -61,14 +77,14 @@ describe('Lifecycle tests', function () {
     });
   });
 
-  it('should fail to process a s3 event missing the object key', function (done) {
+  it('should fail to process a s3 event missing the object key', done => {
+
+    nock('https://api.scanii.com')
+      .post('/v2.1/files/fetch')
+      .reply(202, Buffer.from("{\"id\":\"12356789\"}"));
+
+
     handler({
-      _mock: {
-        response: {
-          statusCode: 202
-        },
-        data: Buffer.from("{\"id\":\"12356789\"}")
-      },
       "Records": [
         {
           "eventVersion": "2.0",
@@ -104,7 +120,7 @@ describe('Lifecycle tests', function () {
           }
         }
       ]
-    }, context(), (error, result) => {
+    }, context(), (error) => {
       "use strict";
       assert(error !== null, "it should throw an error");
       assert(error.message.includes("key not present"));
@@ -112,14 +128,14 @@ describe('Lifecycle tests', function () {
     });
   });
 
-  it('should fail to process a s3 event missing the object bucket', function (done) {
+  it('should fail to process a s3 event missing the object bucket', done => {
+
+    nock('https://api.scanii.com')
+      .post('/v2.1/files/fetch')
+      .reply(202, Buffer.from("{\"id\":\"12356789\"}"));
+
+
     handler({
-      _mock: {
-        response: {
-          statusCode: 202
-        },
-        data: Buffer.from("{\"id\":\"12356789\"}")
-      },
       "Records": [
         {
           "eventVersion": "2.0",
@@ -155,7 +171,7 @@ describe('Lifecycle tests', function () {
           }
         }
       ]
-    }, context(), (error, result) => {
+    }, context(), (error) => {
       "use strict";
       assert(error !== null, "it should throw an error");
       assert(error.message.includes("bucket not present"));
@@ -163,7 +179,7 @@ describe('Lifecycle tests', function () {
     });
   });
 
-  it('should handle a callback without findings', function (done) {
+  it('should handle a callback without findings', done => {
     handler({
       "id": "2e4612793298b1d691202e75dc125f6e",
       "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
@@ -184,9 +200,9 @@ describe('Lifecycle tests', function () {
     });
   });
 
-  it('should handle a bogus callback', function (done) {
+  it('should handle a bogus callback', done => {
     handler({"hello": "world"},
-      context(), (error, result) => {
+      context(), (error) => {
         "use strict";
         assert(error !== null, "it should throw an error");
         assert(error.message.includes("no id provided"));
@@ -194,7 +210,7 @@ describe('Lifecycle tests', function () {
       });
   });
 
-  it('should require bucket/key in callback metadata', function (done) {
+  it('should require bucket/key in callback metadata', done => {
     handler({
         "id": "2e4612793298b1d691202e75dc125f6e",
         "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
@@ -206,7 +222,7 @@ describe('Lifecycle tests', function () {
           "signature": generateSignature("test-bucket", "test-key"),
         }
       },
-      context(), (error, result) => {
+      context(), (error) => {
         "use strict";
         assert(error !== null, "it should throw an error");
         assert(error.message.includes("no bucket supplied in metadata"));
@@ -214,7 +230,8 @@ describe('Lifecycle tests', function () {
       });
   });
 
-  it('should handle callbacks with findings', function (done) {
+  it('should handle callbacks with findings', done => {
+
     handler({
       "id": "2e4612793298b1d691202e75dc125f6e",
       "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
@@ -235,7 +252,7 @@ describe('Lifecycle tests', function () {
     });
   });
 
-  it('should enforce signatures in callbacks', function (done) {
+  it('should enforce signatures in callbacks', done => {
     handler({
       "id": "2e4612793298b1d691202e75dc125f6e",
       "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
@@ -257,7 +274,7 @@ describe('Lifecycle tests', function () {
     });
   });
 
-  it('should handle api gateway proxy callbacks', function (done) {
+  it('should handle api gateway proxy callbacks', done => {
     handler({
       "resource": "/scanii-process-content-v2",
       "path": "/scanii-process-content-v2",
@@ -312,7 +329,7 @@ describe('Lifecycle tests', function () {
     });
   });
 
-  it('should handle api gateway proxy callbacks and findings', function (done) {
+  it('should handle api gateway proxy callbacks and findings', done => {
     handler({
       "resource": "/scanii-process-content-v2",
       "path": "/scanii-process-content-v2",
