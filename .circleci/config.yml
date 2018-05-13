@@ -30,10 +30,10 @@ jobs:
       - store_test_results:
           path: test-results.xml
 
-  build-node4:
+  build-node6:
     working_directory: ~/ci
     docker:
-      - image: circleci/node:4
+      - image: circleci/node:6
     steps:
       - checkout
       - run:
@@ -95,5 +95,6 @@ workflows:
   build:
     jobs:
       - build-node8
+      - build-node6
       - build-node
 
