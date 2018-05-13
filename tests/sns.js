@@ -1,7 +1,6 @@
 const handler = require('../lib/index.js').handler;
 const generateSignature = require('../lib/index.js').generateSignature;
 const assert = require('assert');
-const context = require('aws-lambda-mock-context');
 const it = require("mocha/lib/mocha.js").it;
 const describe = require("mocha/lib/mocha.js").describe;
 const AWS = require('aws-sdk');
@@ -84,7 +83,7 @@ describe('SNS tests', () => {
         "apiId": "hfxx5vbk0b"
       },
       "body": "{\n  \"id\" : \"a62a6f0ba82f6ac11e95d09b8bdf965c\",\n  \"checksum\" : \"4b7fbc3b0ae13fc444f4b4984d643f1f403228a2\",\n  \"content_length\" : 41387,\n  \"findings\" : [ \"content.malware\" ],\n  \"creation_date\" : \"2016-10-15T00:15:35.264Z\",\n  \"content_type\" : \"application/octet-stream\",\n  \"metadata\" : {\n    \"signature\" : \"" + generateSignature("test-bucket", "test-key") + "\",\n    \"bucket\" : \"test-bucket\",\n    \"key\" : \"test-key\"\n  }\n}"
-    }, context(), (error, result) => {
+    }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);

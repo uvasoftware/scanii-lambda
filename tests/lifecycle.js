@@ -1,7 +1,6 @@
 const handler = require('../lib/index.js').handler;
 const generateSignature = require('../lib/index.js').generateSignature;
 const assert = require('assert');
-const context = require('aws-lambda-mock-context');
 const it = require("mocha/lib/mocha.js").it;
 const describe = require("mocha/lib/mocha.js").describe;
 const AWS = require('aws-sdk');
@@ -69,7 +68,7 @@ describe('Lifecycle tests', () => {
           }
         }
       ]
-    }, context(), (error, result) => {
+    }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result === "12356789", "should return the file id");
@@ -120,7 +119,7 @@ describe('Lifecycle tests', () => {
           }
         }
       ]
-    }, context(), (error) => {
+    }, {}, (error) => {
       "use strict";
       assert(error !== null, "it should throw an error");
       assert(error.message.includes("key not present"));
@@ -171,7 +170,7 @@ describe('Lifecycle tests', () => {
           }
         }
       ]
-    }, context(), (error) => {
+    }, {}, (error) => {
       "use strict";
       assert(error !== null, "it should throw an error");
       assert(error.message.includes("bucket not present"));
@@ -192,7 +191,7 @@ describe('Lifecycle tests', () => {
         "bucket": "test-bucket",
         "key": "test-key"
       }
-    }, context(), (error, result) => {
+    }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
@@ -202,7 +201,7 @@ describe('Lifecycle tests', () => {
 
   it('should handle a bogus callback', done => {
     handler({"hello": "world"},
-      context(), (error) => {
+      {}, (error) => {
         "use strict";
         assert(error !== null, "it should throw an error");
         assert(error.message.includes("no id provided"));
@@ -222,7 +221,7 @@ describe('Lifecycle tests', () => {
           "signature": generateSignature("test-bucket", "test-key"),
         }
       },
-      context(), (error) => {
+      {}, (error) => {
         "use strict";
         assert(error !== null, "it should throw an error");
         assert(error.message.includes("no bucket supplied in metadata"));
@@ -244,7 +243,7 @@ describe('Lifecycle tests', () => {
         "bucket": "test-bucket",
         "key": "test-key"
       }
-    }, context(), (error, result) => {
+    }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
@@ -265,7 +264,7 @@ describe('Lifecycle tests', () => {
         "bucket": "test-bucket",
         "key": "test-key"
       }
-    }, context(), (error, result) => {
+    }, {}, (error, result) => {
       "use strict";
       assert(error !== null, "it should throw an error");
       assert(result === undefined);
@@ -321,7 +320,7 @@ describe('Lifecycle tests', () => {
         "apiId": "hfxx5vbk0b"
       },
       "body": "{\n  \"id\" : \"a62a6f0ba82f6ac11e95d09b8bdf965c\",\n  \"checksum\" : \"4b7fbc3b0ae13fc444f4b4984d643f1f403228a2\",\n  \"content_length\" : 41387,\n  \"findings\" : [ ],\n  \"creation_date\" : \"2016-10-15T00:15:35.264Z\",\n  \"content_type\" : \"application/octet-stream\",\n  \"metadata\" : {\n    \"signature\" : \"" + generateSignature("test-bucket", "test-key") + "\",\n    \"bucket\" : \"test-bucket\",\n    \"key\" : \"test-key\"\n  }\n}"
-    }, context(), (error, result) => {
+    }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
@@ -376,7 +375,7 @@ describe('Lifecycle tests', () => {
         "apiId": "hfxx5vbk0b"
       },
       "body": "{\n  \"id\" : \"a62a6f0ba82f6ac11e95d09b8bdf965c\",\n  \"checksum\" : \"4b7fbc3b0ae13fc444f4b4984d643f1f403228a2\",\n  \"content_length\" : 41387,\n  \"findings\" : [ \"content.malware\" ],\n  \"creation_date\" : \"2016-10-15T00:15:35.264Z\",\n  \"content_type\" : \"application/octet-stream\",\n  \"metadata\" : {\n    \"signature\" : \"" + generateSignature("test-bucket", "test-key") + "\",\n    \"bucket\" : \"test-bucket\",\n    \"key\" : \"test-key\"\n  }\n}"
-    }, context(), (error, result) => {
+    }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
