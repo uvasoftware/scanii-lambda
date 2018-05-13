@@ -17,7 +17,14 @@ describe('SNS tests', () => {
       callback();
     };
 
-    AWS.SNS.prototype.publish = (options, callback) => {
+    AWS.SNS.prototype.publish = (params, callback) => {
+      assert(params.Message !== undefined);
+      assert(params.Subject !== undefined);
+      assert(params.TopicArn !== undefined);
+
+      console.log(`SNS subject ${params.Subject} topic: ${params.TopicArn}: `, JSON.stringify(params.Message));
+      console.log(`SNS message: \n`, JSON.stringify(params.Message));
+
       callback();
       snsCounter++;
     };

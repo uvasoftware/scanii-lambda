@@ -95,6 +95,5 @@ workflows:
   build:
     jobs:
       - build-node8
-      - build-node4
       - build-node
 
