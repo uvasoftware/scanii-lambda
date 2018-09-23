@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Scanii.com automatic S3 integration
+Parameters:
+  scaniiApiKey:
+    Description: Your scanii.com API key
+    Type: String
+  scaniiApiSecret:
+    Description: Your scanii.com API key SECRET
+    Type: String
+  bucketName:
+    Description: The S3 bucket to monitor
+    Type: String
+  actionTagObject:
+    Description: Should a custom metadata (ScaniiResult) be added to S3 objects after processing?
+    Type: String
+    Default: yes
+    AllowedValues:
+    - true
+    - false
+  actionPublishSns:
+    Description: Should processing results be published to SNS?
+    Type: String
+    Default: no
+    AllowedValues:
+    - true
+    - false
+  actionDeleteObjectOnFinding:
+    Description: Should S3 objects be DELETED once a finding is identified?
+    Type: String
+    Default: no
+    AllowedValues:
+    - true
+    - false
+  snsTopic:
+    Description: The SNS topic to which messages will be sent to (only needed if SNS result publishing is enabled)
+    Type: String
+    Default: none
+
+Resources:
+  ScaniiFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      FunctionName: uvasoftware-scanii-lambda
+      Handler: lib/index.handler
+      Runtime: nodejs8.10
+      MemorySize: 128
+      Timeout: 60
+      Description: Automatically process your S3 objects using scanii.com content analysis engine
+      AutoPublishAlias: live
+
+      Environment:
+        Variables:
+          API_KEY: !Sub ${scaniiApiKey}
+          API_SECRET: !Sub ${scaniiApiSecret}
+          ACTION_TAG_OBJECT: !Sub ${actionTagObject}
+          ACTION_PUBLISH_SNS: !Sub ${actionPublishSns}
+          ACTION_DELETE_OBJECT: !Sub ${actionDeleteObjectOnFinding}
+          SNS_TOPIC: !Sub ${snsTopic}
+          CALLBACK_URL: CHANGE ME
+
+      Policies:
+      - S3CrudPolicy:
+          BucketName:
+            Ref: bucketName
+
+      - SNSPublishMessagePolicy:
+          TopicName:
+            Ref: snsTopic
+
+      Events:
+        CallbackEvent:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+
+Outputs:
+  ApiURL:
+    Description: "API endpoint URL for Prod environment"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

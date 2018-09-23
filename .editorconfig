@@ -14,3 +14,7 @@ indent_size = 2
 # Don't trim Markdown files
 [*.md]
 trim_trailing_whitespace = false
+
+[{Makefile,**.mk}]
+# Use tabs for indentation (Makefiles require tabs)
+indent_style = tab

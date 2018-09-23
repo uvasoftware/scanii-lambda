@@ -1,37 +1,42 @@
 const handler = require('../lib/index.js').handler;
-const generateSignature = require('../lib/index.js').generateSignature;
 const assert = require('assert');
 const it = require("mocha/lib/mocha.js").it;
 const describe = require("mocha/lib/mocha.js").describe;
 const AWS = require('aws-sdk');
 const nock = require('nock');
+const utils = require('../lib/utils.js');
+const CONFIG = require('../lib/config').CONFIG;
 
-
-// Start the test
 describe('Lifecycle tests', () => {
   beforeEach(() => {
-
 
     // wrapping some fakes around the AWS sdk:
     AWS.S3.prototype.getSignedUrl = () => 'https://example.com/1234?q=124';
 
     // for some reason we need to monkey patch this:
-    AWS.S3.prototype.deleteObject = (options, callback) => {
+    AWS.S3.prototype.deleteObject = (params, callback) => {};
+    AWS.SNS.prototype.publish = () => {};
+    AWS.S3.prototype.copyObject = (params, callback) => {
+      assert(params.hasOwnProperty("Bucket"));
+      assert(params.hasOwnProperty("CopySource"));
+      assert(params.hasOwnProperty("Key"));
+      assert(params.MetadataDirective === "COPY");
+      assert(params.Metadata.ScaniiResult !== undefined, "did not add proper metadata items");
       callback();
-    };
-    AWS.SNS.prototype.publish = () =>{
       return true;
     };
 
+    CONFIG.ACTION_PUBLISH_SNS = true;
+    CONFIG.ACTION_DELETE_OBJECT = true;
   });
 
   nock('https://api.scanii.com')
     .post('/v2.1/files/fetch')
-    .reply(202, Buffer.from("{\"id\":\"12356789\"}"));
+    .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
 
-  it('should process a create object event', done => {
+  it('should process a create object event', async () => {
 
-    handler({
+    await handler({
       "Records": [
         {
           "eventVersion": "2.0",
@@ -71,19 +76,17 @@ describe('Lifecycle tests', () => {
     }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
-      assert(result === "12356789", "should return the file id");
-      done();
+      assert(result.statusCode === 200, "should return the file id");
     });
   });
 
-  it('should fail to process a s3 event missing the object key', done => {
+  it('should fail to process a s3 event missing the object key', async () => {
 
     nock('https://api.scanii.com')
       .post('/v2.1/files/fetch')
-      .reply(202, Buffer.from("{\"id\":\"12356789\"}"));
+      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
 
-
-    handler({
+    await handler({
       "Records": [
         {
           "eventVersion": "2.0",
@@ -119,22 +122,22 @@ describe('Lifecycle tests', () => {
           }
         }
       ]
-    }, {}, (error) => {
+    }, {}, (error, result) => {
       "use strict";
-      assert(error !== null, "it should throw an error");
-      assert(error.message.includes("key not present"));
-      done();
+      assert(error === null, "there should be no errors");
+      assert(result.statusCode === 500, "should return the file id");
+      assert(result.body.includes("key not present"));
     });
   });
 
-  it('should fail to process a s3 event missing the object bucket', done => {
+  it('should fail to process a s3 event missing the object bucket', async () => {
 
     nock('https://api.scanii.com')
       .post('/v2.1/files/fetch')
-      .reply(202, Buffer.from("{\"id\":\"12356789\"}"));
+      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
 
 
-    handler({
+    await handler({
       "Records": [
         {
           "eventVersion": "2.0",
@@ -170,16 +173,16 @@ describe('Lifecycle tests', () => {
           }
         }
       ]
-    }, {}, (error) => {
+    }, {}, (error, result) => {
       "use strict";
-      assert(error !== null, "it should throw an error");
-      assert(error.message.includes("bucket not present"));
-      done();
+      assert(error === null, "there should be no errors");
+      assert(result.statusCode === 500, "should return the file id");
+      assert(result.body.includes("bucket not present"));
     });
   });
 
-  it('should handle a callback without findings', done => {
-    handler({
+  it('should handle a callback without findings', async () => {
+    await handler({
       "id": "2e4612793298b1d691202e75dc125f6e",
       "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
       "content_length": "1251174",
@@ -187,7 +190,7 @@ describe('Lifecycle tests', () => {
       "creation_date": "2016-01-24T15:05:53.260Z",
       "content_type": "image/jpeg",
       "metadata": {
-        "signature": generateSignature("test-bucket", "test-key"),
+        "signature": utils.generateSignature("test-bucket", "test-key"),
         "bucket": "test-bucket",
         "key": "test-key"
       }
@@ -195,22 +198,21 @@ describe('Lifecycle tests', () => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
-      done();
     });
   });
 
-  it('should handle a bogus callback', done => {
-    handler({"hello": "world"},
-      {}, (error) => {
+  it('should handle a bogus callback', async () => {
+    await handler({"hello": "world"},
+      {}, (error, result) => {
         "use strict";
-        assert(error !== null, "it should throw an error");
-        assert(error.message.includes("no id provided"));
-        done();
+        assert(error === null, "there should be no errors");
+        assert(result.statusCode === 500, "should return the file id");
+        assert(result.body.includes("no id provided"));
       });
   });
 
-  it('should require bucket/key in callback metadata', done => {
-    handler({
+  it('should require bucket/key in callback metadata', async () => {
+    await handler({
         "id": "2e4612793298b1d691202e75dc125f6e",
         "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
         "content_length": "1251174",
@@ -218,20 +220,20 @@ describe('Lifecycle tests', () => {
         "creation_date": "2016-01-24T15:05:53.260Z",
         "content_type": "image/jpeg",
         "metadata": {
-          "signature": generateSignature("test-bucket", "test-key"),
+          "signature": utils.generateSignature("test-bucket", "test-key"),
         }
       },
-      {}, (error) => {
+      {}, (error, result) => {
         "use strict";
-        assert(error !== null, "it should throw an error");
-        assert(error.message.includes("no bucket supplied in metadata"));
-        done();
+        assert(error === null, "there should be no errors");
+        assert(result.statusCode === 500, "should return the file id");
+        assert(result.body.includes("no bucket supplied in metadata"));
       });
   });
 
-  it('should handle callbacks with findings', done => {
+  it('should handle callbacks with findings', async () => {
 
-    handler({
+    await handler({
       "id": "2e4612793298b1d691202e75dc125f6e",
       "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
       "content_length": "1251174",
@@ -239,7 +241,7 @@ describe('Lifecycle tests', () => {
       "creation_date": "2016-01-24T15:05:53.260Z",
       "content_type": "image/jpeg",
       "metadata": {
-        "signature": generateSignature("test-bucket", "test-key"),
+        "signature": utils.generateSignature("test-bucket", "test-key"),
         "bucket": "test-bucket",
         "key": "test-key"
       }
@@ -247,12 +249,11 @@ describe('Lifecycle tests', () => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
-      done();
     });
   });
 
-  it('should enforce signatures in callbacks', done => {
-    handler({
+  it('should enforce signatures in callbacks', async () => {
+    await handler({
       "id": "2e4612793298b1d691202e75dc125f6e",
       "checksum": "30d3007d8fa7e76f2741805fbaf1c8bba9a00051",
       "content_length": "1251174",
@@ -266,15 +267,15 @@ describe('Lifecycle tests', () => {
       }
     }, {}, (error, result) => {
       "use strict";
-      assert(error !== null, "it should throw an error");
-      assert(result === undefined);
-      assert(error.message.includes("invalid signature"));
-      done();
+      "use strict";
+      assert(error === null, "there should be no errors");
+      assert(result.statusCode === 500, "should return the file id");
+      assert(result.body.includes("invalid signature"));
     });
   });
 
-  it('should handle api gateway proxy callbacks', done => {
-    handler({
+  it('should handle api gateway proxy callbacks', async () => {
+    await handler({
       "resource": "/scanii-process-content-v2",
       "path": "/scanii-process-content-v2",
       "httpMethod": "POST",
@@ -319,17 +320,16 @@ describe('Lifecycle tests', () => {
         "httpMethod": "POST",
         "apiId": "hfxx5vbk0b"
       },
-      "body": "{\n  \"id\" : \"a62a6f0ba82f6ac11e95d09b8bdf965c\",\n  \"checksum\" : \"4b7fbc3b0ae13fc444f4b4984d643f1f403228a2\",\n  \"content_length\" : 41387,\n  \"findings\" : [ ],\n  \"creation_date\" : \"2016-10-15T00:15:35.264Z\",\n  \"content_type\" : \"application/octet-stream\",\n  \"metadata\" : {\n    \"signature\" : \"" + generateSignature("test-bucket", "test-key") + "\",\n    \"bucket\" : \"test-bucket\",\n    \"key\" : \"test-key\"\n  }\n}"
+      "body": "{\n  \"id\" : \"a62a6f0ba82f6ac11e95d09b8bdf965c\",\n  \"checksum\" : \"4b7fbc3b0ae13fc444f4b4984d643f1f403228a2\",\n  \"content_length\" : 41387,\n  \"findings\" : [ ],\n  \"creation_date\" : \"2016-10-15T00:15:35.264Z\",\n  \"content_type\" : \"application/octet-stream\",\n  \"metadata\" : {\n    \"signature\" : \"" + utils.generateSignature("test-bucket", "test-key") + "\",\n    \"bucket\" : \"test-bucket\",\n    \"key\" : \"test-key\"\n  }\n}"
     }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
-      done();
     });
   });
 
-  it('should handle api gateway proxy callbacks and findings', done => {
-    handler({
+  it('should handle api gateway proxy callbacks and findings', async () => {
+    await handler({
       "resource": "/scanii-process-content-v2",
       "path": "/scanii-process-content-v2",
       "httpMethod": "POST",
@@ -374,14 +374,12 @@ describe('Lifecycle tests', () => {
         "httpMethod": "POST",
         "apiId": "hfxx5vbk0b"
       },
-      "body": "{\n  \"id\" : \"a62a6f0ba82f6ac11e95d09b8bdf965c\",\n  \"checksum\" : \"4b7fbc3b0ae13fc444f4b4984d643f1f403228a2\",\n  \"content_length\" : 41387,\n  \"findings\" : [ \"content.malware\" ],\n  \"creation_date\" : \"2016-10-15T00:15:35.264Z\",\n  \"content_type\" : \"application/octet-stream\",\n  \"metadata\" : {\n    \"signature\" : \"" + generateSignature("test-bucket", "test-key") + "\",\n    \"bucket\" : \"test-bucket\",\n    \"key\" : \"test-key\"\n  }\n}"
+      "body": "{\n  \"id\" : \"a62a6f0ba82f6ac11e95d09b8bdf965c\",\n  \"checksum\" : \"4b7fbc3b0ae13fc444f4b4984d643f1f403228a2\",\n  \"content_length\" : 41387,\n  \"findings\" : [ \"content.malware\" ],\n  \"creation_date\" : \"2016-10-15T00:15:35.264Z\",\n  \"content_type\" : \"application/octet-stream\",\n  \"metadata\" : {\n    \"signature\" : \"" + utils.generateSignature("test-bucket", "test-key") + "\",\n    \"bucket\" : \"test-bucket\",\n    \"key\" : \"test-key\"\n  }\n}"
     }, {}, (error, result) => {
       "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200);
-      done();
     });
   });
-
 });
 
