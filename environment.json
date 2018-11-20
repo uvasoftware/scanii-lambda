@@ -1,0 +1,12 @@
+{
+  "ScaniiS3Fn": {
+    "API_KEY": "key",
+    "API_SECRET": "secret"
+  },
+  "ScaniiApiGatewayFn": {
+    "API_KEY": "key",
+    "API_SECRET": "secret",
+    "ACTION_TAG_OBJECT": "true",
+    "ACTION_DELETE_OBJECT": "false"
+  }
+}
