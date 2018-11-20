@@ -16,16 +16,19 @@ describe('Api Gateway handler tests', () => {
     AWS.S3.prototype.deleteObject = (params, callback) => {
     };
     AWS.S3.prototype.putObjectTagging = (params, callback) => {
-      assert(params.hasOwnProperty("Bucket"));
-      assert(params.hasOwnProperty("Key"));
-      callback();
-      return true;
+
     };
 
     CONFIG.ACTION_DELETE_OBJECT = true;
     CONFIG.SECRET = "secret";
     CONFIG.KEY = "key";
     CONFIG.CALLBACK_URL = "https://example.com/callback/";
+  });
+
+
+  afterEach(() => {
+    CONFIG.ACTION_DELETE_OBJECT = false;
+    CONFIG.ACTION_TAG_OBJECT = false;
   });
 
   it('should handle a callback without findings', async () => {

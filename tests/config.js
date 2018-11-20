@@ -13,6 +13,7 @@ describe('Config tests', () => {
   beforeEach(() => {
     // resetting
     deleteCounter = tagCounter = 0;
+
     // for some reason we need to monkey patch this:
     AWS.S3.prototype.deleteObject = () => {
       deleteCounter++;

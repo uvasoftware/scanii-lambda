@@ -11,29 +11,16 @@ describe('S3 handler tests', () => {
 
     // wrapping some fakes around the AWS sdk:
     AWS.S3.prototype.getSignedUrl = () => 'https://example.com/1234?q=124';
-
-    // for some reason we need to monkey patch this:
-    AWS.S3.prototype.deleteObject = (params, callback) => {
-    };
-    AWS.SNS.prototype.publish = () => {
-    };
-    AWS.S3.prototype.copyObject = (params, callback) => {
-      assert(params.hasOwnProperty("Bucket"));
-      assert(params.hasOwnProperty("CopySource"));
-      assert(params.hasOwnProperty("Key"));
-      assert(params.MetadataDirective === "COPY");
-      assert(params.Metadata.ScaniiResult !== undefined, "did not add proper metadata items");
-      callback();
-      return true;
-    };
-
-    CONFIG.ACTION_PUBLISH_SNS = true;
-    CONFIG.ACTION_DELETE_OBJECT = true;
-    CONFIG.SECRET = "secret";
-    CONFIG.KEY = "key";
     CONFIG.CALLBACK_URL = "https://example.com/callback/";
+    CONFIG.KEY = "k";
+    CONFIG.SECRET = "s";
   });
 
+  afterEach(() => {
+    CONFIG.CALLBACK_URL = null;
+    CONFIG.KEY = null;
+    CONFIG.SECRET = null;
+  });
 
   it('should process a create object event', async () => {
 
