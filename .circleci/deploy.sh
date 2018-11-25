@@ -1,12 +1,15 @@
 #!/bin/bash
 
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+export ACCOUNT_ID=${ACCOUNT_ID}
+export APPLICATION="UvaSoftware-Scanii-Lambda"
+
 # installing AWS CLI
-apt-get install -qqy nodejs npm zip python-pip
-pip install awscli aws-sam-cli
+apt-get install -qqy nodejs npm zip python3-pip &>/dev/null
+pip3 install awscli aws-sam-cli &>/dev/null
 
 VERSION=$( node -pe "require('./package.json').version")
-ACCOUNT_ID=${ACCOUNT_ID}
-APPLICATION="UvaSoftware-Scanii-Lambda"
 
 # building
 make build package || exit 100
@@ -23,7 +26,6 @@ git config --global user.email "circleci@uvasoftware.com"
 git config --global user.name "CircleCI"
 git tag -a v${VERSION} -m "Release by CircleCI v${VERSION}"
 # git push origin v${VERSION}
-
 
 # bumping version
 npm version patch
