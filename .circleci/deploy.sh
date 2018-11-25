@@ -9,7 +9,7 @@ ACCOUNT_ID=${ACCOUNT_ID}
 APPLICATION="UvaSoftware-Scanii-Lambda"
 
 # building
-make build package
+make build package || exit 100
 
 aws serverlessrepo create-application-version \
  --application-id arn:aws:serverlessrepo:us-east-1:${ACCOUNT_ID}:applications/${APPLICATION} \
