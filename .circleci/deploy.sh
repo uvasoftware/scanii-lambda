@@ -1,9 +1,11 @@
 #!/bin/bash
 
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
-export ACCOUNT_ID=${ACCOUNT_ID}
+export LC_ALL=C.UTF-8 # needed by SAM
+export LANG=C.UTF-8 # needed by SAM
+export AWS_DEFAULT_REGION=us-east-1 # needed by SAM
+
 export APPLICATION="UvaSoftware-Scanii-Lambda"
+export ACCOUNT_ID=${ACCOUNT_ID}
 
 # installing AWS CLI
 apt-get install -qqy nodejs npm zip python3-pip &>/dev/null
