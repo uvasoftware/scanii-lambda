@@ -1,0 +1,90 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Scanii.com automatic S3 integration
+
+Parameters:
+  bucketName:
+    Description: The bucket you would like to monitor for events
+    Type: String
+  scaniiApiKey:
+    Description: Your scanii.com API key
+    Type: String
+  scaniiApiSecret:
+    Description: Your scanii.com API key SECRET
+    Type: String
+  actionTagObject:
+    Description: Should a custom metadata (ScaniiResult) be added to S3 objects after processing?
+    Type: String
+    Default: yes
+    AllowedValues:
+    - true
+    - false
+  actionDeleteObjectOnFinding:
+    Description: Should S3 objects be DELETED once a finding is identified?
+    Type: String
+    Default: no
+    AllowedValues:
+    - true
+    - false
+
+Resources:
+  ScaniiSubmitFn:
+    Type: AWS::Serverless::Function
+    DependsOn: ScaniiCallbackFn
+    Properties:
+      CodeUri: .
+      FunctionName: uvasoftware-scanii-lambda-submit
+      Handler: lib/s3-handler.handler
+      Runtime: nodejs8.10
+      MemorySize: 256
+      Timeout: 60
+      Description: Submits objects to be analyzed by scanii.com
+      AutoPublishAlias: live # enables automatic version tracking
+
+      Environment:
+        Variables:
+          API_KEY: !Sub ${scaniiApiKey}
+          API_SECRET: !Sub ${scaniiApiSecret}
+          CALLBACK_URL: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/callback"
+
+      Policies:
+      - S3ReadPolicy:
+          BucketName:
+            Ref: bucketName
+
+  ScaniiCallbackFn:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      FunctionName: uvasoftware-scanii-lambda-callback
+      Handler: lib/ag-handler.handler
+      Runtime: nodejs8.10
+      MemorySize: 256
+      Timeout: 60
+      Description: Handles scanii.com's result callbacks
+      AutoPublishAlias: live # enables automatic version tracking
+
+      Environment:
+        Variables:
+          API_KEY: !Sub ${scaniiApiKey}
+          API_SECRET: !Sub ${scaniiApiSecret}
+          ACTION_TAG_OBJECT: !Sub ${actionTagObject}
+          ACTION_DELETE_OBJECT: !Sub ${actionDeleteObjectOnFinding}
+
+      Events:
+        ScaniiCallback:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+
+      Policies:
+      - S3CrudPolicy:
+          BucketName:
+            Ref: bucketName
+
+
+Outputs:
+  ApiURL:
+    Description: "Status!"
+    Value: "Scanii-lambda reporting for duty!"
