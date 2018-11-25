@@ -1,4 +1,4 @@
-build: clean test
+build: clean
 	zip -9vr /tmp/scanii-lambda.zip lib/ node_modules/ package* README.md LICENSE
 	@echo "#### BUILD COMPLETED ####"
 	@echo "bundle => /tmp/scanii-lambda.zip"
@@ -11,7 +11,7 @@ package:
 npm-install:
 	npm install .
 
-test: npm-install
+test: clean npm-install
 	npm test
 
 clean:

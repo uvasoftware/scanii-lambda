@@ -20,7 +20,7 @@ jobs:
             - ./node_modules
       - run:
           name: test
-          command: npm test
+          command: make test
       - store_artifacts:
           path: test-results.xml
           prefix: tests
@@ -50,7 +50,7 @@ jobs:
             - ./node_modules
       - run:
           name: test
-          command: npm test
+          command: make test
       - store_artifacts:
           path: test-results.xml
           prefix: tests
