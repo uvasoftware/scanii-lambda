@@ -2,11 +2,17 @@ const assert = require('assert');
 const it = require("mocha/lib/mocha.js").it;
 const describe = require("mocha/lib/mocha.js").describe;
 const actions = require('../lib/actions');
-const AWS = require('aws-sdk');
+const AWS = require('aws-sdk-mock');
 
 describe('Actions tests', () => {
 
+  let putObjectTagCallCount = 0;
   beforeEach(() => {
+    putObjectTagCallCount = 0;
+  });
+
+  afterEach(function () {
+    AWS.restore();
   });
 
   it('should add correct tags if findings', async () => {
@@ -24,7 +30,7 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.S3.prototype.putObjectTagging = (params, callback) => {
+    AWS.mock('S3', 'putObjectTagging', (params, callback) => {
       assert.ok(params.Bucket === result.metadata.bucket);
       assert.ok(params.Key === result.metadata.key);
 
@@ -36,13 +42,12 @@ describe('Actions tests', () => {
 
       assert.ok(params.Tagging.TagSet[2].Key === "ScaniiContentType");
       assert.ok(params.Tagging.TagSet[2].Value === result.content_type);
-
-
       callback();
-      return true;
-    };
+      putObjectTagCallCount++;
+    });
 
     await actions.tagObject(result.metadata.bucket, result.metadata.key, result);
+    assert(putObjectTagCallCount === 1);
   });
 
   it('should add correct tags if no findings', async () => {
@@ -60,7 +65,7 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.S3.prototype.putObjectTagging = (params, callback) => {
+    AWS.mock('S3', 'putObjectTagging', (params, callback) => {
       assert.ok(params.Bucket === result.metadata.bucket);
       assert.ok(params.Key === result.metadata.key);
 
@@ -72,12 +77,13 @@ describe('Actions tests', () => {
 
       assert.ok(params.Tagging.TagSet[2].Key === "ScaniiContentType");
       assert.ok(params.Tagging.TagSet[2].Value === result.content_type);
-
-
       callback();
+      putObjectTagCallCount++;
       return true;
-    };
+    });
 
     await actions.tagObject(result.metadata.bucket, result.metadata.key, result);
+    assert(putObjectTagCallCount === 1);
+
   });
 });

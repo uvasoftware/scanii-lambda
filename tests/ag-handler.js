@@ -2,22 +2,21 @@ const handler = require('../lib/ag-handler.js').handler;
 const assert = require('assert');
 const it = require("mocha/lib/mocha.js").it;
 const describe = require("mocha/lib/mocha.js").describe;
-const AWS = require('aws-sdk');
 const utils = require('../lib/utils.js');
 const CONFIG = require('../lib/config').CONFIG;
+const AWS = require('aws-sdk-mock');
+
 
 describe('Api Gateway handler tests', () => {
   beforeEach(() => {
 
     // wrapping some fakes around the AWS sdk:
-    AWS.S3.prototype.getSignedUrl = () => 'https://example.com/1234?q=124';
+    AWS.mock('S3', 'getSignedUrl', () => 'https://example.com/1234?q=124');
 
-    // for some reason we need to monkey patch this:
-    AWS.S3.prototype.deleteObject = (params, callback) => {
-    };
-    AWS.S3.prototype.putObjectTagging = (params, callback) => {
-
-    };
+    AWS.mock('S3', 'deleteObject', () => {
+    });
+    AWS.mock('S3', 'putObjectTagging', () => {
+    });
 
     CONFIG.ACTION_DELETE_OBJECT = true;
     CONFIG.SECRET = "secret";
@@ -27,8 +26,7 @@ describe('Api Gateway handler tests', () => {
 
 
   afterEach(() => {
-    CONFIG.ACTION_DELETE_OBJECT = false;
-    CONFIG.ACTION_TAG_OBJECT = false;
+    AWS.restore();
   });
 
   it('should handle a callback without findings', async () => {
