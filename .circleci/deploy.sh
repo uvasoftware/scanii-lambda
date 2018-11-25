@@ -24,17 +24,17 @@ aws serverlessrepo create-application-version \
 
 echo "SAM application ${APPLICATION} version ${VERSION} published!"
 
+# tag repo
 git config --global user.email "circleci@uvasoftware.com"
 git config --global user.name "CircleCI"
 git tag -a v${VERSION} -m "Release by CircleCI v${VERSION}"
 git push origin v${VERSION}
 
 # bumping version
-npm version patch
+npm --no-git-tag-version version patch
 VERSION=$( node -pe "require('./package.json').version")
 echo "next version is: $VERSION"
 
 #commit version change
-git status
 git commit -a -m "bump to $VERSION [ci skip]"
 git push origin master
