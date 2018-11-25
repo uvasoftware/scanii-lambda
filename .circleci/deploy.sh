@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # installing AWS CLI
-apt-get install -qqy nodejs npm python-pip && pip install awscli
+apt-get install -qqy nodejs npm zip python-pip && pip install awscli
 
 VERSION=$( node -pe "require('./package.json').version")
 ACCOUNT_ID=${ACCOUNT_ID}
