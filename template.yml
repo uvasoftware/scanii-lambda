@@ -10,7 +10,7 @@ Parameters:
     Description: Your scanii.com API key
     Type: String
   scaniiApiSecret:
-    Description: Your scanii.com API key SECRET
+    Description: Your scanii.com API secret
     Type: String
   actionTagObject:
     Description: Should a custom metadata (ScaniiResult) be added to S3 objects after processing?
@@ -82,7 +82,6 @@ Resources:
       - S3CrudPolicy:
           BucketName:
             Ref: bucketName
-
 
 Outputs:
   ApiURL:
