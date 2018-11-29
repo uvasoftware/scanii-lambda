@@ -1,4 +1,4 @@
-build: clean
+build: clean npm-install
 	zip -9vr /tmp/scanii-lambda.zip lib/ node_modules/ package* README.md LICENSE
 	@echo "#### BUILD COMPLETED ####"
 	@echo "bundle => /tmp/scanii-lambda.zip"
@@ -20,3 +20,6 @@ clean:
 
 run:
 	sam local start-api --env-vars environment.json
+
+run-submit-event:
+	sam local generate-event s3 put | sam local invoke ScaniiSubmitFn
