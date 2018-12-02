@@ -17,15 +17,15 @@ Parameters:
     Type: String
     Default: yes
     AllowedValues:
-    - true
-    - false
+      - true
+      - false
   actionDeleteObjectOnFinding:
     Description: Should S3 objects be DELETED once a finding is identified?
     Type: String
     Default: no
     AllowedValues:
-    - true
-    - false
+      - true
+      - false
 
 Resources:
   ScaniiSubmitFn:
@@ -48,9 +48,9 @@ Resources:
           CALLBACK_URL: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/callback"
 
       Policies:
-      - S3ReadPolicy:
-          BucketName:
-            Ref: bucketName
+        - S3ReadPolicy:
+            BucketName:
+              Ref: bucketName
 
   ScaniiCallbackFn:
     Type: AWS::Serverless::Function
@@ -79,9 +79,13 @@ Resources:
             Method: any
 
       Policies:
-      - S3CrudPolicy:
-          BucketName:
-            Ref: bucketName
+        - Statement:
+            - Sid: ScaniiLambdaCallbackPolicy
+              Effect: "Allow"
+              Action:
+                - "s3:DeleteObject"
+                - "s3:PutObjectTagging"
+              Resource: !Sub "arn:aws:s3:::${bucketName}/*"
 
 Outputs:
   ApiURL:
