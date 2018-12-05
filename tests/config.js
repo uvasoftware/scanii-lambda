@@ -38,11 +38,7 @@ describe('Config tests', () => {
 
     AWS.mock('S3', 'getObjectTagging', (params, callback) => {
       callback(null, {
-        Bucket: params.Bucket,
-        Key: params.Key,
-        Tagging: {
-          TagSet: []
-        }
+        TagSet: []
       });
     });
   });
