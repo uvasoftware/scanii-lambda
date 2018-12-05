@@ -30,4 +30,12 @@ describe('Util tests', () => {
       assert(error.code === 'ERR_ASSERTION')
     }
   });
+
+
+  it('should format tag value #1', async () => {
+    const value = utils.formatTagValue(['content.malicious.porcupine-malware-36555-unofficial', 'content.malicious.trojan-agent-bwqq'
+    ]);
+
+    assert.deepStrictEqual(value, "content.malicious.porcupine-malware-36555-unofficial content.malicious.trojan-agent-bwqq");
+  });
 });
