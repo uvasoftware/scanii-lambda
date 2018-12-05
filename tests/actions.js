@@ -48,11 +48,7 @@ describe('Actions tests', () => {
 
     AWS.mock('S3', 'getObjectTagging', (params, callback) => {
       callback(null, {
-        Bucket: params.Bucket,
-        Key: params.Key,
-        Tagging: {
-          TagSet: []
-        }
+        TagSet: []
       });
     });
 
@@ -94,11 +90,7 @@ describe('Actions tests', () => {
 
     AWS.mock('S3', 'getObjectTagging', (params, callback) => {
       callback(null, {
-        Bucket: params.Bucket,
-        Key: params.Key,
-        Tagging: {
-          TagSet: []
-        }
+        TagSet: []
       });
     });
 
@@ -131,11 +123,7 @@ describe('Actions tests', () => {
 
     AWS.mock('S3', 'getObjectTagging', (params, callback) => {
       callback(null, {
-        Bucket: params.Bucket,
-        Key: params.Key,
-        Tagging: {
-          TagSet: []
-        }
+        TagSet: []
       });
     });
 
@@ -155,16 +143,12 @@ describe('Actions tests', () => {
 
     AWS.mock('S3', 'getObjectTagging', (params, callback) => {
       callback(null, {
-        Bucket: params.Bucket,
-        Key: params.Key,
-        Tagging: {
-          TagSet: [
-            {
-              Key: "Tag1",
-              Value: "Value1"
-            }
-          ]
-        }
+        TagSet: [
+          {
+            Key: "Tag1",
+            Value: "Value1"
+          }
+        ]
       });
     });
 
