@@ -30,7 +30,7 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.mock('S3', 'putObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
       assert.ok(params.Bucket === result.metadata.bucket);
       assert.ok(params.Key === result.metadata.key);
 
@@ -46,7 +46,7 @@ describe('Actions tests', () => {
       putObjectTagCallCount++;
     });
 
-    AWS.mock('S3', 'getObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
       callback(null, {
         TagSet: []
       });
@@ -71,7 +71,7 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.mock('S3', 'putObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
       assert.ok(params.Bucket === result.metadata.bucket);
       assert.ok(params.Key === result.metadata.key);
 
@@ -88,7 +88,7 @@ describe('Actions tests', () => {
       return true;
     });
 
-    AWS.mock('S3', 'getObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
       callback(null, {
         TagSet: []
       });
@@ -113,7 +113,7 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.mock('S3', 'putObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
       assert.ok(params.Tagging.TagSet[0].Key === "ScaniiFindings");
       assert.ok(params.Tagging.TagSet[0].Value.length < 256);
       callback();
@@ -121,7 +121,7 @@ describe('Actions tests', () => {
       return true;
     });
 
-    AWS.mock('S3', 'getObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
       callback(null, {
         TagSet: []
       });
@@ -133,7 +133,7 @@ describe('Actions tests', () => {
 
   it('should append not replace tags', async () => {
 
-    AWS.mock('S3', 'putObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
       assert.ok(params.Bucket === result.metadata.bucket);
       assert.ok(params.Key === result.metadata.key);
       assert.ok(params.Tagging.TagSet.length === 4);
@@ -141,7 +141,7 @@ describe('Actions tests', () => {
 
     });
 
-    AWS.mock('S3', 'getObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
       callback(null, {
         TagSet: [
           {
