@@ -13,9 +13,9 @@ describe('Api Gateway handler tests', () => {
     // wrapping some fakes around the AWS sdk:
     AWS.mock('S3', 'getSignedUrl', () => 'https://example.com/1234?q=124');
 
-    AWS.mock('S3', 'deleteObject', () => {
+    AWS.mock('S3', 'deleteObject', async () => {
     });
-    AWS.mock('S3', 'putObjectTagging', () => {
+    AWS.mock('S3', 'putObjectTagging', async () => {
     });
 
     CONFIG.ACTION_DELETE_OBJECT = true;

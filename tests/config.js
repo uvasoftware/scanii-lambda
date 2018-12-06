@@ -28,15 +28,15 @@ describe('Config tests', () => {
     deleteCounter = tagCounter = 0;
 
     // for some reason we need to monkey patch this:
-    AWS.mock('S3', 'deleteObject', () => {
+    AWS.mock('S3', 'deleteObject', async () => {
       deleteCounter++;
     });
 
-    AWS.mock('S3', 'putObjectTagging', () => {
+    AWS.mock('S3', 'putObjectTagging', async () => {
       tagCounter++;
     });
 
-    AWS.mock('S3', 'getObjectTagging', (params, callback) => {
+    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
       callback(null, {
         TagSet: []
       });
