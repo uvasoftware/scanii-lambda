@@ -35,7 +35,7 @@ Resources:
       CodeUri: .
       FunctionName: uvasoftware-scanii-lambda-submit
       Handler: lib/s3-handler.handler
-      Runtime: nodejs8.10
+      Runtime: nodejs10.x
       MemorySize: 256
       Timeout: 60
       Description: Submits objects to be analyzed by scanii.com
@@ -58,7 +58,7 @@ Resources:
       CodeUri: .
       FunctionName: uvasoftware-scanii-lambda-callback
       Handler: lib/ag-handler.handler
-      Runtime: nodejs8.10
+      Runtime: nodejs10.x
       MemorySize: 256
       Timeout: 60
       Description: Handles scanii.com's result callbacks
