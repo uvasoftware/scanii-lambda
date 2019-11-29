@@ -1,6 +1,7 @@
 const assert = require('assert');
 const it = require("mocha/lib/mocha.js").it;
 const describe = require("mocha/lib/mocha.js").describe;
+const beforeEach = require("mocha/lib/mocha.js").beforeEach;
 const utils = require('../lib/utils');
 
 describe('Util tests', () => {
