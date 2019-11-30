@@ -12,10 +12,6 @@ Parameters:
   scaniiApiSecret:
     Description: Your scanii.com API secret
     Type: String
-  envSuffix:
-    Description: The environment name (a suffix really) to be appended to your lambda functions
-    Type: String
-    Default: prod
   actionTagObject:
     Description: Should custom tags be added to S3 objects after processing?
     Type: String
@@ -37,7 +33,7 @@ Resources:
     DependsOn: ScaniiCallbackFn
     Properties:
       CodeUri: .
-      FunctionName: !Sub "uvasoftware-scanii-lambda-submit-${envSuffix}"
+      FunctionName: !Sub "${AWS::StackName}-Submit"
       Handler: lib/s3-handler.handler
       Runtime: nodejs12.x
       MemorySize: 256
@@ -60,7 +56,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: .
-      FunctionName: !Sub "uvasoftware-scanii-lambda-callback-${envSuffix}"
+      FunctionName: !Sub "${AWS::StackName}-Callback"
       Handler: lib/ag-handler.handler
       Runtime: nodejs12.x
       MemorySize: 256
