@@ -1,0 +1,17 @@
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    if: "!contains(github.event.commits[0].message, '[ci skip]')"
+    name: Deploy
+    runs-on: ubuntu-latest
+    container:
+      image: debian:9
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: apt-get update -qq && apt-get install -qqy git unzip ssh ca-certificates tar gzip
+      - name: Deploy
+        run: bash ./.github/workflows/deploy.sh

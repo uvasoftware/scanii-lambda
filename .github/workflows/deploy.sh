@@ -25,9 +25,9 @@ aws serverlessrepo create-application-version \
 echo "SAM application ${APPLICATION} version ${VERSION} published!"
 
 # tag repo
-git config --global user.email "circleci@uvasoftware.com"
-git config --global user.name "CircleCI"
-git tag -a v"${VERSION}" -m "Release by CircleCI v${VERSION}"
+git config --global user.email "ci@uvasoftware.com"
+git config --global user.name "Github Actions"
+git tag -a v"${VERSION}" -m "Release by Github Actions v${VERSION}"
 git push origin v"${VERSION}"
 
 # bumping version
