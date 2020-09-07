@@ -9,6 +9,7 @@ const AWS = require('aws-sdk');
 const nock = require('nock');
 const CONFIG = require('../lib/config').CONFIG;
 const sinon = require('sinon');
+const {defaults} = require("../lib/config");
 
 describe('S3 handler tests', () => {
   const sandbox = sinon.createSandbox();
@@ -21,17 +22,16 @@ describe('S3 handler tests', () => {
     CONFIG.CALLBACK_URL = "https://example.com/callback/";
     CONFIG.KEY = "k";
     CONFIG.SECRET = "s";
+    CONFIG.MAX_ATTEMPTS = 1;
   });
 
   afterEach(() => {
-    CONFIG.CALLBACK_URL = null;
-    CONFIG.KEY = null;
-    CONFIG.SECRET = null;
+    nock.cleanAll();
     sandbox.restore();
+    defaults();
   });
 
   it('should process a create object event', async () => {
-
     nock('https://api.scanii.com')
       .post('/v2.1/files/fetch')
       .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
