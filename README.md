@@ -2,13 +2,13 @@
 A Sam-Packaged AWS Lambda client to the [scanii.com](https://scanii.com) content processing engine. For a detailed walk-through of deploying this application see: https://support.scanii.com/article/55-how-do-i-analyze-content-stored-on-amazon-s3.
 
 ## How it works
-This is, essentially, a series of lambda functions packaged in a  one-click deployable application that configures everything needed so your S3 objects are submitted automatically to scanii’s content analysis [API](https://docs.scanii.com/v2.1/overview.html).  Once the content is processed,  you can choose from a couple of different actions:
+This is, essentially, a series of lambda functions packaged in a one-click deployable application that configures everything needed so your S3 objects are submitted automatically to scanii’s content analysis [API](https://docs.scanii.com/v2.1/overview.html).  Once the content is processed,  you can choose from a couple of different actions:
 
 1. Tag the content - this is defaulted to on and adds the following tag to objects processed: 
 	1. `ScaniiId` -> the resource id of the processed content
 	2. `ScaniiFindings` ->  list of identified findings (content engine dependent) 
 	3. `ScaniiContentType` -> the identified content type of the file processed 
-2. Delete object with findings - this is defaulted to **off** and will delete S3 objects with findings (such as malware or NSFW content) - for a full list of available content identification see https://support.scanii.com/article/20-content-detection-engines
+2. Delete the object with findings - this is defaulted to **off** and will delete S3 objects with findings (such as malware or NSFW content) - for a full list of available content identification see https://support.scanii.com/article/20-content-detection-engines
 
 ## Working with the source code
 The source code for this application is written using Javascript and requires, at least, nodejs 8 to run. Before getting started we strongly advise you to become familiar with the following technologies: 

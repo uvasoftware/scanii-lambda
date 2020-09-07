@@ -23,6 +23,7 @@ describe('S3 handler tests', () => {
     CONFIG.KEY = "k";
     CONFIG.SECRET = "s";
     CONFIG.MAX_ATTEMPTS = 1;
+    CONFIG.MAX_ATTEMPT_DELAY_MSEC = 1_000;
   });
 
   afterEach(() => {
