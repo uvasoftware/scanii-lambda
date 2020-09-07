@@ -181,56 +181,5 @@ describe('S3 handler tests', () => {
       assert(result.body.includes("bucket not present"));
     });
   });
-  it('should obfuscate the object key', async () => {
-    nock('https://api.scanii.com')
-      .post('/v2.1/files/fetch')
-      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
-
-    const spy = sinon.spy(scanii.ScaniiClient.prototype, 'fetch');
-
-    await handler({
-      "Records": [
-        {
-          "eventVersion": "2.0",
-          "eventSource": "aws:s3",
-          "awsRegion": "us-west-2",
-          "eventTime": "2015-10-01T23:28:54.280Z",
-          "eventName": "ObjectCreated:Put",
-          "userIdentity": {
-            "principalId": "AWS:principal"
-          },
-          "requestParameters": {
-            "sourceIPAddress": "98.167.155.191"
-          },
-          "responseElements": {
-            "x-amz-request-id": "EEC943B096DE3DF9",
-            "x-amz-id-2": "W/myEjyXFBsOA6N0byxW0tOxMA4m1fmv9KAVcovvG0nD9W1s5aX5+Wx61tlCop8LbZAw1Nz0mnc="
-          },
-          "s3": {
-            "s3SchemaVersion": "1.0",
-            "configurationId": "948c2c1a-a028-4564-93fc-76cea7622633",
-            "bucket": {
-              "name": "scanii-mu",
-              "ownerIdentity": {
-                "principalId": "principal"
-              },
-              "arn": "arn:aws:s3:::scanii-mu"
-            },
-            "object": {
-              "key": "Screen+Shot+2016-01-19+at+7.24.37+PM.png",
-              "size": 519,
-              "eTag": "aa1e5c8a6a07217c25f55aa8e96ea37a",
-              "sequencer": "00560DC1B62F962FCD"
-            }
-          }
-        }
-      ]
-    }, {}, () => {
-      "use strict";
-      assert(spy.calledOnce)
-      assert((spy.getCall(0).args[2]['key-sha1'] === '8fd1943cbc9bf22f0b7f64aef9015f6494b81846'))
-      assert((spy.getCall(0).args[2]['key'] === undefined))
-    });
-  });
 });
 
