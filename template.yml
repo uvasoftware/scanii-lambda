@@ -12,6 +12,17 @@ Parameters:
   scaniiApiSecret:
     Description: Your scanii.com API secret
     Type: String
+  scaniiApiEndpoint:
+    Description: Which endpoint should be used?
+    Type: String
+    Default: api.scanii.com
+    AllowedValues:
+      - api.scanii.com
+      - api-eu1.scanii.com
+      - api-eu2.scanii.com
+      - api-ap1.scanii.com
+      - api-ap2.scanii.com
+      - api-us1.scanii.com
   actionTagObject:
     Description: Should custom tags be added to S3 objects after processing?
     Type: String
@@ -45,6 +56,7 @@ Resources:
         Variables:
           API_KEY: !Sub ${scaniiApiKey}
           API_SECRET: !Sub ${scaniiApiSecret}
+          API_ENDPOINT: !Sub ${scaniiApiEndpoint}
           CALLBACK_URL: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/callback"
 
       Policies:
