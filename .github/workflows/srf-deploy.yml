@@ -7,7 +7,7 @@ on:
         required: true
 jobs:
   build_and_deploy:
-    name: Build and Deploy
+    name: Build and Deploy ${{ github.event.inputs.stage }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,6 +20,8 @@ jobs:
           zip -9vr build/scanii-lambda.zip lib/ node_modules/ package* README.md LICENSE
       - name: install AWS cli
         uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
       - name: deploy 
         run: |
           if [ ${{ github.event.inputs.stage }} = "test" ]
