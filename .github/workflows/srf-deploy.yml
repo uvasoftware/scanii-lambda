@@ -18,35 +18,31 @@ jobs:
         run: | 
           mkdir -v build
           zip -9vr build/scanii-lambda.zip lib/ node_modules/ package* README.md LICENSE
-      - name: install AWS cli
+      - name: install AWS cli DEV
         if: ${{ github.event.inputs.stage == 'test' }}
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ secrets.AWS_REGION }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+      - name: install AWS cli INT
+        if: ${{ github.event.inputs.stage == 'stage' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_INT }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_INT }}
+      - name: install AWS cli PRD
+        if: ${{ github.event.inputs.stage == 'production' }}
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PRD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PRD }}
       - name: deploy 
         run: |
-          if [ ${{ github.event.inputs.stage }} = "test" ]
-          then
-            export AWS_DEPLOY_BUCKET=${{ secrets.AWS_DEPLOY_BUCKET_DEV }}
-          elif [ ${{ github.event.inputs.stage }} = "stage" ]
-          then
-            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_INT }}
-            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_INT }}
-            export AWS_DEPLOY_BUCKET=${{ secrets.AWS_DEPLOY_BUCKET_INT }}
-          elif [ ${{ github.event.inputs.stage }} = "production" ]
-          then
-            export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID_PRD }}
-            export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY_PRD }}
-            export AWS_DEPLOY_BUCKET=${{ secrets.AWS_DEPLOY_BUCKET_PRD }}
-          else
-            echo "Stage ${{ github.event.inputs.stage }} not found" 
-            exit 1
-          fi
+          aws s3 cp build/scanii-lambda.zip s3://srf-deployment-s3-${{ github.event.inputs.stage }}/formio-scanii/latest.zip
 
-          aws s3 cp build/scanii-lambda.zip s3://${AWS_DEPLOY_BUCKET}/formio-scanii/latest.zip
-
-          aws lambda update-function-code --function-name formio-scanii-submit-${{ github.event.inputs.stage }} --s3-bucket ${AWS_DEPLOY_BUCKET} --s3-key formio-scanii/latest.zip
-          aws lambda update-function-code --function-name formio-scanii-callback-${{ github.event.inputs.stage }} --s3-bucket ${AWS_DEPLOY_BUCKET} --s3-key formio-scanii/latest.zip
+          aws lambda update-function-code --function-name formio-scanii-submit-${{ github.event.inputs.stage }} --s3-bucket s3://srf-deployment-s3-${{ github.event.inputs.stage }} --s3-key formio-scanii/latest.zip
+          aws lambda update-function-code --function-name formio-scanii-callback-${{ github.event.inputs.stage }} s3://srf-deployment-s3-${{ github.event.inputs.stage }} --s3-key formio-scanii/latest.zip
 
