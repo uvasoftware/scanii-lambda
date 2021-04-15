@@ -44,5 +44,5 @@ jobs:
           aws s3 cp build/scanii-lambda.zip s3://srf-deployment-s3-${{ github.event.inputs.stage }}/formio-scanii/latest.zip
 
           aws lambda update-function-code --function-name formio-scanii-submit-${{ github.event.inputs.stage }} --s3-bucket srf-deployment-s3-${{ github.event.inputs.stage }} --s3-key formio-scanii/latest.zip
-          aws lambda update-function-code --function-name formio-scanii-callback-${{ github.event.inputs.stage }} srf-deployment-s3-${{ github.event.inputs.stage }} --s3-key formio-scanii/latest.zip
+          aws lambda update-function-code --function-name formio-scanii-callback-${{ github.event.inputs.stage }} --s3-bucket srf-deployment-s3-${{ github.event.inputs.stage }} --s3-key formio-scanii/latest.zip
 
