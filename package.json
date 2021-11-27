@@ -9,7 +9,7 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "^2.747.0",
+    "aws-sdk": "^2.814.0",
     "axios": "^0.21.1"
   },
   "devDependencies": {
