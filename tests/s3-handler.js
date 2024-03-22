@@ -11,6 +11,8 @@ const CONFIG = require('../lib/config').CONFIG;
 const sinon = require('sinon');
 const {defaults} = require("../lib/config");
 
+"use strict";
+
 describe('S3 handler tests', () => {
   const sandbox = sinon.createSandbox();
 
@@ -33,9 +35,9 @@ describe('S3 handler tests', () => {
   });
 
   it('should process a create object event', async () => {
-    nock('https://api.scanii.com')
-      .post('/v2.1/files/fetch')
-      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
+    nock('https://api-us1.scanii.com')
+      .post('/v2.2/files/fetch')
+      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api-us1.scanii.com/v2.2/files/1234"});
 
     await handler({
       "Records": [
@@ -75,7 +77,6 @@ describe('S3 handler tests', () => {
         }
       ]
     }, {}, (error, result) => {
-      "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 200, "should return the file id");
     });
@@ -83,9 +84,9 @@ describe('S3 handler tests', () => {
 
   it('should fail to process a s3 event missing the object key', async () => {
 
-    nock('https://api.scanii.com')
-      .post('/v2.1/files/fetch')
-      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
+    nock('https://api-us1.scanii.com')
+      .post('/v2.2/files/fetch')
+      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api-us1.scanii.com/v2.2/files/1234"});
 
     await handler({
       "Records": [
@@ -124,7 +125,6 @@ describe('S3 handler tests', () => {
         }
       ]
     }, {}, (error, result) => {
-      "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 500, "should return the file id");
       assert(result.body.includes("key not present"));
@@ -133,9 +133,9 @@ describe('S3 handler tests', () => {
 
   it('should fail to process a s3 event missing the object bucket', async () => {
 
-    nock('https://api.scanii.com')
-      .post('/v2.1/files/fetch')
-      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api.scanii.com/v2.1/files/1234"});
+    nock('https://api-us1.scanii.com')
+      .post('/v2.2/files/fetch')
+      .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api-us1.scanii.com/v2.2/files/1234"});
 
 
     await handler({
@@ -175,7 +175,6 @@ describe('S3 handler tests', () => {
         }
       ]
     }, {}, (error, result) => {
-      "use strict";
       assert(error === null, "there should be no errors");
       assert(result.statusCode === 500, "should return the file id");
       assert(result.body.includes("bucket not present"));
