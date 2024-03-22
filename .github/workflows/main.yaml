@@ -1,17 +1,17 @@
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   deploy:
     if: "!contains(github.event.commits[0].message, '[ci skip]')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 12.x
+      - name: Setup node
         uses: actions/setup-node@v1
         with:
-          node-version: 12.x
+          node-version: 20.x
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
