@@ -11,7 +11,7 @@ package:
 npm-install:
 	npm install .
 
-test: clean npm-install
+test:
 	npm test
 
 clean:

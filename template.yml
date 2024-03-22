@@ -13,11 +13,10 @@ Parameters:
     Description: Your scanii.com API secret
     Type: String
   scaniiApiEndpoint:
-    Description: Which endpoint should be used?
+    Description: Which endpoint would you like to use? (https://docs.scanii.com/article/161-endpoints-and-regions)
     Type: String
     Default: api.scanii.com
     AllowedValues:
-      - api.scanii.com
       - api-eu1.scanii.com
       - api-eu2.scanii.com
       - api-ap1.scanii.com
@@ -46,9 +45,9 @@ Resources:
       CodeUri: .
       FunctionName: !Sub "${AWS::StackName}-Submit"
       Handler: lib/s3-handler.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs20.x
       MemorySize: 256
-      Timeout: 60
+      Timeout: 300
       Description: Submits objects to be analyzed by scanii.com
       AutoPublishAlias: live # enables automatic version tracking
 
@@ -70,7 +69,7 @@ Resources:
       CodeUri: .
       FunctionName: !Sub "${AWS::StackName}-Callback"
       Handler: lib/ag-handler.handler
-      Runtime: nodejs12.x
+      Runtime: nodejs20.x
       MemorySize: 256
       Timeout: 60
       Description: Handles scanii.com's result callbacks

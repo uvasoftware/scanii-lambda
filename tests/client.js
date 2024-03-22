@@ -8,29 +8,31 @@ describe('client tests', () => {
   });
 
   it('should retry failed fetch requests', async function () {
-    nock('https://api.scanii.com')
-      .post('/v2.1/files/fetch')
+    nock('https://api-us1.scanii.com')
+      .post('/v2.2/files/fetch')
       .reply(555);
 
-    const client = new scanii.ScaniiClient('foo', 'bar', "https://api.scanii.com", 2)
+    const client = new scanii.ScaniiClient('foo', 'bar', "https://api-us1.scanii.com", 2)
     try {
       await client.fetch('https://acme.com', 'https://acme.com/callback', {});
     } catch (e) {
       assert.ok(e.attempts === 2)
     }
+    return Promise.resolve()
   });
 
   it('should retry failed retrieve requests', async function () {
-    nock('https://api.scanii.com')
-      .post('/v2.1/files/123')
+    nock('https://api-us1.scanii.com')
+      .post('/v2.2/files/123')
       .reply(555);
 
-    const client = new scanii.ScaniiClient('foo', 'bar', "https://api.scanii.com", 2)
+    const client = new scanii.ScaniiClient('foo', 'bar', "https://api-us1.scanii.com", 2)
     try {
       await client.retrieve('123');
     } catch (e) {
       assert.ok(e.attempts === 2)
     }
+    return Promise.resolve()
   });
 
 })
