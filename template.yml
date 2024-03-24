@@ -15,7 +15,7 @@ Parameters:
   scaniiApiEndpoint:
     Description: Which endpoint would you like to use? (https://docs.scanii.com/article/161-endpoints-and-regions)
     Type: String
-    Default: api.scanii.com
+    Default: api-us1.scanii.com
     AllowedValues:
       - api-eu1.scanii.com
       - api-eu2.scanii.com
