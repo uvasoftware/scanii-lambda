@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 export LC_ALL=C.UTF-8 # needed by SAM
 export LANG=C.UTF-8 # needed by SAM
@@ -33,4 +33,4 @@ echo "next version is: $VERSION"
 
 #commit version change
 git commit -a -m "bump to $VERSION [ci skip]"
-git push origin master
+git push origin main
