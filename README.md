@@ -1,5 +1,5 @@
 # Uva Software’s scanii-lambda
-A Sam-Packaged AWS Lambda client to the [scanii.com](https://scanii.com) content processing engine. For a detailed walk-through of deploying this application see: https://support.scanii.com/article/55-how-do-i-analyze-content-stored-on-amazon-s3.
+A Sam-Packaged AWS Lambda client to the [scanii.com](https://scanii.com) content processing engine. For a detailed walk-through of deploying this application see: https://docs.scanii.com/article/151-how-do-i-analyze-content-stored-on-amazon-s3.
 
 ## How it works
 This is, essentially, a series of lambda functions packaged in a one-click deployable application that configures everything needed so your S3 objects are submitted automatically to scanii’s content analysis [API](https://docs.scanii.com/v2.1/overview.html).  Once the content is processed,  you can choose from a couple of different actions:
