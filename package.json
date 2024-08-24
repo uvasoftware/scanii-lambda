@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "aws-sdk": "^2.1583.0",
-    "axios": "^1.6.8"
+    "axios": "^1.7.4"
   },
   "devDependencies": {
     "aws-sdk-mock": "^5.9.0",
