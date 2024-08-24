@@ -4,7 +4,8 @@ on:
       - main
 jobs:
   deploy:
-    if: "!contains(github.event.commits[0].message, '[ci skip]')"
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
