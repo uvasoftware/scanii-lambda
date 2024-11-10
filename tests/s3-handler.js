@@ -19,8 +19,6 @@ describe('S3 handler tests', () => {
   beforeEach(() => {
     sandbox.spy(scanii.ScaniiClient);
 
-    // wrapping some fakes around the AWS sdk:
-    // AWS.S3.prototype.getSignedUrl = () => 'https://example.com/1234?q=124';
     CONFIG.CALLBACK_URL = "https://example.com/callback/";
     CONFIG.KEY = "k";
     CONFIG.SECRET = "s";
