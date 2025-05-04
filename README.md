@@ -8,7 +8,7 @@ This is, essentially, a series of lambda functions packaged in a one-click deplo
 	1. `ScaniiId` -> the resource id of the processed content
 	2. `ScaniiFindings` ->  list of identified findings (content engine dependent) 
 	3. `ScaniiContentType` -> the identified content type of the file processed 
-2. Delete the object with findings - this is defaulted to **off** and will delete S3 objects with findings (such as malware or NSFW content) - for a full list of available content identification see https://support.scanii.com/article/20-content-detection-engines
+2. Delete the object with findings - this is defaulted to **off** and will delete S3 objects with findings (such as malware or NSFW content) - for a full list of available content identification see https://docs.scanii.com/article/149-how-do-the-different-detection-engines-work
 
 ## Working with the source code
 The source code for this application is written using Javascript and requires, at least, nodejs 8 to run. Before getting started we strongly advise you to become familiar with the following technologies: 

@@ -22,6 +22,7 @@ Parameters:
       - api-ap1.scanii.com
       - api-ap2.scanii.com
       - api-us1.scanii.com
+      - api-ca1.scanii.com
   actionTagObject:
     Description: Should custom tags be added to S3 objects after processing?
     Type: String
