@@ -1,6 +1,6 @@
 {
   "name": "scanii-lambda",
-  "version": "2.13.0",
+  "version": "2.14.0",
   "description": "Uva Software's Scanii.com Lambda/SAM Integration",
   "main": "index.js",
   "scripts": {
