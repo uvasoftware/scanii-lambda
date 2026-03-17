@@ -1,15 +1,16 @@
-const handler = require('../lib/s3-handler').handler;
+const s3HandlerModule = require('../lib/s3-handler');
+const handler = s3HandlerModule.handler;
 const scanii = require('../lib/client');
 const assert = require('assert');
 const it = require("mocha/lib/mocha.js").it;
 const describe = require("mocha/lib/mocha.js").describe;
 const beforeEach = require("mocha/lib/mocha.js").beforeEach;
 const afterEach = require("mocha/lib/mocha.js").afterEach;
-const AWS = require('aws-sdk-mock');
 const nock = require('nock');
 const CONFIG = require('../lib/config').CONFIG;
 const sinon = require('sinon');
 const {defaults} = require("../lib/config");
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
 "use strict";
 
@@ -18,6 +19,8 @@ describe('S3 handler tests', () => {
 
   beforeEach(() => {
     sandbox.spy(scanii.ScaniiClient);
+
+    s3HandlerModule._getSignedUrl = async () => 'https://s3.amazonaws.com/';
 
     CONFIG.CALLBACK_URL = "https://example.com/callback/";
     CONFIG.KEY = "k";
@@ -30,6 +33,7 @@ describe('S3 handler tests', () => {
   afterEach(() => {
     nock.cleanAll();
     sandbox.restore();
+    s3HandlerModule._getSignedUrl = getSignedUrl;
     defaults();
   });
 
@@ -233,10 +237,11 @@ describe('S3 handler tests', () => {
       .post('/v2.2/files/fetch')
       .reply(202, Buffer.from("{\"id\":\"12356789\"}"), {"Location": "https://api-us1.scanii.com/v2.2/files/1234"});
 
-    AWS.mock('S3', 'getSignedUrl',  (operator,params) => {
-      assert.ok(params.Expires === CONFIG.SIGNED_URL_DURATION);
-      return true;
-    })
+    let capturedOptions;
+    s3HandlerModule._getSignedUrl = async (client, command, options) => {
+      capturedOptions = options;
+      return 'https://s3.amazonaws.com/';
+    };
 
     return await handler({
       "Records": [
@@ -279,6 +284,7 @@ describe('S3 handler tests', () => {
     }, {}, (error, result) => {
       assert.ok(error === null, "there should be no errors");
       assert.ok(result.statusCode === 200, "signed url timeout not configurable");
+      assert.ok(capturedOptions.expiresIn === CONFIG.SIGNED_URL_DURATION);
 
     });
   });

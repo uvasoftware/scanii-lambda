@@ -6,19 +6,18 @@ const beforeEach = require("mocha/lib/mocha.js").beforeEach;
 const afterEach = require("mocha/lib/mocha.js").afterEach;
 const utils = require('../lib/utils.js');
 const CONFIG = require('../lib/config').CONFIG;
-const AWS = require('aws-sdk-mock');
+const { mockClient } = require('aws-sdk-client-mock');
+const { S3Client, DeleteObjectCommand, PutObjectTaggingCommand, GetObjectTaggingCommand } = require('@aws-sdk/client-s3');
 
+const s3Mock = mockClient(S3Client);
 
 describe('Api Gateway handler tests', () => {
   beforeEach(() => {
+    s3Mock.reset();
 
-    // wrapping some fakes around the AWS sdk:
-    AWS.mock('S3', 'getSignedUrl', () => 'https://example.com/1234?q=124');
-
-    AWS.mock('S3', 'deleteObject', async () => {
-    });
-    AWS.mock('S3', 'putObjectTagging', async () => {
-    });
+    s3Mock.on(DeleteObjectCommand).resolves({});
+    s3Mock.on(PutObjectTaggingCommand).resolves({});
+    s3Mock.on(GetObjectTaggingCommand).resolves({ TagSet: [] });
 
     CONFIG.ACTION_DELETE_OBJECT = true;
     CONFIG.SECRET = "secret";
@@ -28,7 +27,7 @@ describe('Api Gateway handler tests', () => {
 
 
   afterEach(() => {
-    AWS.restore();
+    s3Mock.reset();
   });
 
   it('should handle a callback without findings', async () => {
