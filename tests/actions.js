@@ -4,17 +4,21 @@ const describe = require("mocha/lib/mocha.js").describe;
 const beforeEach = require("mocha/lib/mocha.js").beforeEach;
 const afterEach = require("mocha/lib/mocha.js").afterEach;
 const actions = require('../lib/actions');
-const AWS = require('aws-sdk-mock');
+const { mockClient } = require('aws-sdk-client-mock');
+const { S3Client, GetObjectTaggingCommand, PutObjectTaggingCommand } = require('@aws-sdk/client-s3');
+
+const s3Mock = mockClient(S3Client);
 
 describe('Actions tests', () => {
 
   let putObjectTagCallCount = 0;
   beforeEach(() => {
     putObjectTagCallCount = 0;
+    s3Mock.reset();
   });
 
   afterEach(function () {
-    AWS.restore();
+    s3Mock.reset();
   });
 
   it('should add correct tags if findings', async () => {
@@ -32,26 +36,24 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
-      assert.ok(params.Bucket === result.metadata.bucket);
-      assert.ok(params.Key === result.metadata.key);
+    s3Mock.on(PutObjectTaggingCommand).callsFake(async (input) => {
+      assert.ok(input.Bucket === result.metadata.bucket);
+      assert.ok(input.Key === result.metadata.key);
 
-      assert.ok(params.Tagging.TagSet[0].Key === "ScaniiFindings");
-      assert.ok(params.Tagging.TagSet[0].Value === result.findings.join(' '));
+      assert.ok(input.Tagging.TagSet[0].Key === "ScaniiFindings");
+      assert.ok(input.Tagging.TagSet[0].Value === result.findings.join(' '));
 
-      assert.ok(params.Tagging.TagSet[1].Key === "ScaniiId");
-      assert.ok(params.Tagging.TagSet[1].Value === result.id);
+      assert.ok(input.Tagging.TagSet[1].Key === "ScaniiId");
+      assert.ok(input.Tagging.TagSet[1].Value === result.id);
 
-      assert.ok(params.Tagging.TagSet[2].Key === "ScaniiContentType");
-      assert.ok(params.Tagging.TagSet[2].Value === result.content_type);
-      callback();
+      assert.ok(input.Tagging.TagSet[2].Key === "ScaniiContentType");
+      assert.ok(input.Tagging.TagSet[2].Value === result.content_type);
       putObjectTagCallCount++;
+      return {};
     });
 
-    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
-      callback(null, {
-        TagSet: []
-      });
+    s3Mock.on(GetObjectTaggingCommand).resolves({
+      TagSet: []
     });
 
     await actions.tagObject(result.metadata.bucket, result.metadata.key, result);
@@ -73,27 +75,24 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
-      assert.ok(params.Bucket === result.metadata.bucket);
-      assert.ok(params.Key === result.metadata.key);
+    s3Mock.on(PutObjectTaggingCommand).callsFake(async (input) => {
+      assert.ok(input.Bucket === result.metadata.bucket);
+      assert.ok(input.Key === result.metadata.key);
 
-      assert.ok(params.Tagging.TagSet[0].Key === "ScaniiFindings");
-      assert.ok(params.Tagging.TagSet[0].Value === 'None');
+      assert.ok(input.Tagging.TagSet[0].Key === "ScaniiFindings");
+      assert.ok(input.Tagging.TagSet[0].Value === 'None');
 
-      assert.ok(params.Tagging.TagSet[1].Key === "ScaniiId");
-      assert.ok(params.Tagging.TagSet[1].Value === result.id);
+      assert.ok(input.Tagging.TagSet[1].Key === "ScaniiId");
+      assert.ok(input.Tagging.TagSet[1].Value === result.id);
 
-      assert.ok(params.Tagging.TagSet[2].Key === "ScaniiContentType");
-      assert.ok(params.Tagging.TagSet[2].Value === result.content_type);
-      callback();
+      assert.ok(input.Tagging.TagSet[2].Key === "ScaniiContentType");
+      assert.ok(input.Tagging.TagSet[2].Value === result.content_type);
       putObjectTagCallCount++;
-      return true;
+      return {};
     });
 
-    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
-      callback(null, {
-        TagSet: []
-      });
+    s3Mock.on(GetObjectTaggingCommand).resolves({
+      TagSet: []
     });
 
     await actions.tagObject(result.metadata.bucket, result.metadata.key, result);
@@ -115,18 +114,15 @@ describe('Actions tests', () => {
       }
     };
 
-    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
-      assert.ok(params.Tagging.TagSet[0].Key === "ScaniiFindings");
-      assert.ok(params.Tagging.TagSet[0].Value.length < 256);
-      callback();
+    s3Mock.on(PutObjectTaggingCommand).callsFake(async (input) => {
+      assert.ok(input.Tagging.TagSet[0].Key === "ScaniiFindings");
+      assert.ok(input.Tagging.TagSet[0].Value.length < 256);
       putObjectTagCallCount++;
-      return true;
+      return {};
     });
 
-    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
-      callback(null, {
-        TagSet: []
-      });
+    s3Mock.on(GetObjectTaggingCommand).resolves({
+      TagSet: []
     });
 
     await actions.tagObject(result.metadata.bucket, result.metadata.key, result);
@@ -135,23 +131,21 @@ describe('Actions tests', () => {
 
   it('should append not replace tags', async () => {
 
-    AWS.mock('S3', 'putObjectTagging', async (params, callback) => {
-      assert.ok(params.Bucket === result.metadata.bucket);
-      assert.ok(params.Key === result.metadata.key);
-      assert.ok(params.Tagging.TagSet.length === 4);
+    s3Mock.on(PutObjectTaggingCommand).callsFake(async (input) => {
+      assert.ok(input.Bucket === result.metadata.bucket);
+      assert.ok(input.Key === result.metadata.key);
+      assert.ok(input.Tagging.TagSet.length === 4);
       putObjectTagCallCount++;
-
+      return {};
     });
 
-    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
-      callback(null, {
-        TagSet: [
-          {
-            Key: "Tag1",
-            Value: "Value1"
-          }
-        ]
-      });
+    s3Mock.on(GetObjectTaggingCommand).resolves({
+      TagSet: [
+        {
+          Key: "Tag1",
+          Value: "Value1"
+        }
+      ]
     });
 
     const result = {

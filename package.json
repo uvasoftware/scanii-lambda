@@ -1,6 +1,6 @@
 {
   "name": "scanii-lambda",
-  "version": "2.16.0",
+  "version": "3.0.0",
   "description": "Uva Software's Scanii.com Lambda/SAM Integration",
   "main": "index.js",
   "scripts": {
@@ -9,14 +9,16 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "aws-sdk": "^2.1583.0",
-    "axios": "^1.13.5"
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/s3-request-presigner": "^3.600.0",
+    "axios": "^1.7.4",
+    "serialize-javascript": "^7.0.3"
   },
   "devDependencies": {
-    "aws-sdk-mock": "^5.9.0",
-    "eslint": "^8.57.0",
-    "mocha": "^10.8.2",
-    "nock": "^13.5.4",
-    "sinon": "^17.0.1"
+    "aws-sdk-client-mock": "^4.0.1",
+    "eslint": "^10.0.3",
+    "mocha": "^11.7.5",
+    "nock": "^14.0.11",
+    "sinon": "^21.0.3"
   }
 }

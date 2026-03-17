@@ -5,7 +5,10 @@ const beforeEach = require("mocha/lib/mocha.js").beforeEach;
 const afterEach = require("mocha/lib/mocha.js").afterEach;
 const CONFIG = require('../lib/config').CONFIG;
 const actions = require('../lib/actions');
-const AWS = require('aws-sdk-mock');
+const { mockClient } = require('aws-sdk-client-mock');
+const { S3Client, DeleteObjectCommand, PutObjectTaggingCommand, GetObjectTaggingCommand } = require('@aws-sdk/client-s3');
+
+const s3Mock = mockClient(S3Client);
 
 describe('Config tests', () => {
 
@@ -28,25 +31,25 @@ describe('Config tests', () => {
   beforeEach(() => {
     // resetting
     deleteCounter = tagCounter = 0;
+    s3Mock.reset();
 
-    // for some reason we need to monkey patch this:
-    AWS.mock('S3', 'deleteObject', async () => {
+    s3Mock.on(DeleteObjectCommand).callsFake(async () => {
       deleteCounter++;
+      return {};
     });
 
-    AWS.mock('S3', 'putObjectTagging', async () => {
+    s3Mock.on(PutObjectTaggingCommand).callsFake(async () => {
       tagCounter++;
+      return {};
     });
 
-    AWS.mock('S3', 'getObjectTagging', async (params, callback) => {
-      callback(null, {
-        TagSet: []
-      });
+    s3Mock.on(GetObjectTaggingCommand).resolves({
+      TagSet: []
     });
   });
 
   afterEach(function () {
-    AWS.restore();
+    s3Mock.reset();
   });
 
   it("if all actions are disabled, no action should be taken", async () => {
