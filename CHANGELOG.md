@@ -2,6 +2,17 @@
 
 All notable changes to `scanii-lambda` are documented here. Versions follow [SemVer](https://semver.org).
 
+## [3.0.2] — Deployment README refresh
+
+### Changed
+
+- Rewrote the README around the AWS Serverless Application Repository customer
+  deployment flow, including parameters, required post-deploy S3 trigger setup,
+  result actions, and deployment verification.
+- Corrected the SAM parameter defaults for `actionTagObject` and
+  `actionDeleteObjectOnFinding` to use the documented and accepted `true` /
+  `false` values.
+
 ## [3.0.1] — Node.js 24 handler compatibility
 
 ### Fixed

@@ -26,14 +26,14 @@ Parameters:
   actionTagObject:
     Description: Should custom tags be added to S3 objects after processing?
     Type: String
-    Default: yes
+    Default: true
     AllowedValues:
       - true
       - false
   actionDeleteObjectOnFinding:
     Description: Should S3 objects be DELETED once a finding is identified?
     Type: String
-    Default: no
+    Default: false
     AllowedValues:
       - true
       - false

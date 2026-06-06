@@ -1,7 +1,7 @@
 {
   "name": "scanii-lambda",
-  "version": "3.0.1",
-  "description": "Uva Software's Scanii.com Lambda/SAM Integration",
+  "version": "3.0.2",
+  "description": "Scanii Lambda/SAM integration for Amazon S3",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests --recursive --exit --no-timeouts"
