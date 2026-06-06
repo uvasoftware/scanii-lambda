@@ -9,8 +9,9 @@ All notable changes to `scanii-lambda` are documented here. Versions follow [Sem
 - Rewrote the README around the AWS Serverless Application Repository customer
   deployment flow, including parameters, required post-deploy S3 trigger setup,
   result actions, and deployment verification.
-- Added a deploy-to-AWS badge and moved brittle endpoint enumeration out of the
-  README in favor of the maintained endpoint documentation.
+- Moved the AWS deployment link into a prominent `Deploy on AWS` section and
+  moved brittle endpoint enumeration out of the README in favor of the
+  maintained endpoint documentation.
 - Documented the advanced environment configuration defaults inline in
   `lib/config.js`.
 - Corrected the SAM parameter defaults for `actionTagObject` and

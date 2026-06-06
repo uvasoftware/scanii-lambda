@@ -4,12 +4,15 @@ Scanii Lambda is a deployable AWS Serverless Application Repository application
 that submits new Amazon S3 objects to [Scanii](https://scanii.com/) for content
 analysis.
 
-[![Deploy to AWS](https://img.shields.io/badge/Deploy%20to-AWS-FF9900?logo=amazonaws&logoColor=white)](https://serverlessrepo.aws.amazon.com/#/applications/arn:aws:serverlessrepo:us-east-1:484983087487:applications~UvaSoftware-Scanii-Lambda)
-
 Use it when you want S3 uploads scanned for malware, unsafe language, NSFW
 content, or other Scanii findings without writing your own Lambda integration.
 The full deployment walkthrough is available in
 [Analyze content stored on Amazon S3](https://docs.scanii.com/article/151-how-do-i-analyze-content-stored-on-amazon-s3).
+
+## Deploy on AWS
+
+[Open Scanii Lambda in the AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/#/applications/arn:aws:serverlessrepo:us-east-1:484983087487:applications~UvaSoftware-Scanii-Lambda)
+to deploy the published SAM application into your AWS account.
 
 ## What gets deployed
 
@@ -28,12 +31,9 @@ request metadata and runs the configured S3 actions.
 Existing objects are not scanned automatically. Only object-created events sent
 to the submit function are processed.
 
-## Deployment
+## Before deploying
 
-Deploy the application from the button above or from the
-[AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/#/applications/arn:aws:serverlessrepo:us-east-1:484983087487:applications~UvaSoftware-Scanii-Lambda).
-
-Before deploying, have these ready:
+Have these ready:
 
 1. An existing S3 bucket to monitor.
 2. A Scanii API key and secret.
