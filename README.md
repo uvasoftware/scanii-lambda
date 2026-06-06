@@ -4,6 +4,8 @@ Scanii Lambda is a deployable AWS Serverless Application Repository application
 that submits new Amazon S3 objects to [Scanii](https://scanii.com/) for content
 analysis.
 
+[![Deploy to AWS](https://img.shields.io/badge/Deploy%20to-AWS-FF9900?logo=amazonaws&logoColor=white)](https://serverlessrepo.aws.amazon.com/#/applications/arn:aws:serverlessrepo:us-east-1:484983087487:applications~UvaSoftware-Scanii-Lambda)
+
 Use it when you want S3 uploads scanned for malware, unsafe language, NSFW
 content, or other Scanii findings without writing your own Lambda integration.
 The full deployment walkthrough is available in
@@ -28,7 +30,7 @@ to the submit function are processed.
 
 ## Deployment
 
-Deploy the application from the
+Deploy the application from the button above or from the
 [AWS Serverless Application Repository](https://serverlessrepo.aws.amazon.com/#/applications/arn:aws:serverlessrepo:us-east-1:484983087487:applications~UvaSoftware-Scanii-Lambda).
 
 Before deploying, have these ready:
@@ -53,14 +55,15 @@ monitor.
 | `actionTagObject` | No | Set to `true` to add Scanii result tags to processed objects. Default: `true`. |
 | `actionDeleteObjectOnFinding` | No | Set to `true` to delete objects when Scanii reports findings. Default: `false`. |
 
-The supported Scanii endpoint values are:
+For supported endpoint values, see
+[Endpoints and regions](https://docs.scanii.com/article/161-endpoints-and-regions).
 
-- `api-us1.scanii.com`
-- `api-ca1.scanii.com`
-- `api-eu1.scanii.com`
-- `api-eu2.scanii.com`
-- `api-ap1.scanii.com`
-- `api-ap2.scanii.com`
+## Advanced configuration
+
+The deployment parameters cover the standard customer-facing settings. The
+Lambda functions also read environment variables for callback URL, retry, and
+signed URL behavior. See [lib/config.js](lib/config.js) for the full list and
+defaults before overriding those values.
 
 ## Required post-deploy step
 
